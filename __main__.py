@@ -10,7 +10,7 @@ def solve(m,n,vtkFileName="example.vtk", f=1, sigma=1, integrationOrder=4):
     grid = SquareGrid(m, n)
     #grid = Grid(vtkFileName)
     return Fem(grid.verticesMatrix, grid.connectivityMatrix,
-        grid.boundaryArray).solution(integrationOrder)
+        grid.boundaryArray).solve(integrationOrder)
 
 def plot(m, n, vtkFileName="example.vtk", f=1, sigma=1, integrationOrder=4):
     U = solve(m, n)
@@ -24,3 +24,9 @@ def plot(m, n, vtkFileName="example.vtk", f=1, sigma=1, integrationOrder=4):
     ax = fig.gca(projection='3d')
     ax.plot_trisurf(verticesMatrix[:,0], verticesMatrix[:,1], U, triangles = triangles)
     plt.show()
+
+def f():
+    return 1
+
+def sigma():
+    return 1

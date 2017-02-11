@@ -2,12 +2,12 @@ import numpy as np
 import scipy
 
 class Fem(object):
-    def __init__(self, verticesMatrix, connectivityMatrix, boundaryArray, f=1, sigma=1):
+    def __init__(self, verticesMatrix, connectivityMatrix, boundaryArray):
         self.verticesMatrix = verticesMatrix
         self.trianglesMatrix = connectivityMatrix
         self.boundaryArray = boundaryArray
 
-    def solution(self, integrationOrder):
+    def solve(self, f, sigma, integrationOrder=4):
         verticesNumber = len(self.verticesMatrix)
 
         K = np.zeros((verticesNumber,verticesNumber)) # Make this sparse!
