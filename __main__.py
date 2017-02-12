@@ -7,15 +7,13 @@ from source.squareGrid import SquareGrid
 from source.fem import Fem
 
 
-def solve(m, n, vtkFileName="example.vtk", f=1, sigma=1, integrationOrder=4):
+def solve(m, n, integrationOrder=4):
     grid = SquareGrid(m, n)
-    fem = Fem(
-        grid.verticesMatrix, grid.connectivityMatrix, grid.boundaryArray,
-        f, sigma, integrationOrder)
-    return fem.solution
+    fem = Fem(grid.verticesMatrix, grid.connectivityMatrix, grid.boundaryArray)
+    return fem.solve(f, sigma, integrationOrder)
 
 
-def plot(m, n, vtkFileName="example.vtk", f=1, sigma=1, integrationOrder=4):
+def plot(m, n, integrationOrder=4):
     U = solve(m, n)
     grid = SquareGrid(m, n)
 
