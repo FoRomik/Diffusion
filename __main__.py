@@ -6,11 +6,14 @@ from source.grid import Grid
 from source.squareGrid import SquareGrid
 from source.fem import Fem
 
-def solve(m,n,vtkFileName="example.vtk", f=1, sigma=1, integrationOrder=4):
+
+def solve(m, n, vtkFileName="example.vtk", f=1, sigma=1, integrationOrder=4):
     grid = SquareGrid(m, n)
-    #grid = Grid(vtkFileName)
-    return Fem(grid.verticesMatrix, grid.connectivityMatrix,
-        grid.boundaryArray).solve(integrationOrder)
+    fem = Fem(
+        grid.verticesMatrix, grid.connectivityMatrix, grid.boundaryArray,
+        f, sigma, integrationOrder)
+    return fem.solution
+
 
 def plot(m, n, vtkFileName="example.vtk", f=1, sigma=1, integrationOrder=4):
     U = solve(m, n)
@@ -22,11 +25,17 @@ def plot(m, n, vtkFileName="example.vtk", f=1, sigma=1, integrationOrder=4):
 
     fig = plt.figure()
     ax = fig.gca(projection='3d')
-    ax.plot_trisurf(verticesMatrix[:,0], verticesMatrix[:,1], U, triangles = triangles)
+    ax.plot_trisurf(
+        verticesMatrix[:, 0],
+        verticesMatrix[:, 1],
+        U,
+        triangles=triangles)
     plt.show()
 
-def f():
+
+def f(x, y):
     return 1
 
-def sigma():
+
+def sigma(x, y):
     return 1
