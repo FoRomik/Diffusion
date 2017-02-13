@@ -6,15 +6,8 @@ from source.grid import Grid
 from source.squareGrid import SquareGrid
 from source.fem import Fem
 
-
-def solve(m, n, integrationOrder=4):
-    grid = SquareGrid(m, n)
-    fem = Fem(grid.verticesMatrix, grid.connectivityMatrix, grid.boundaryArray)
-    return fem.solve(f, sigma, integrationOrder)
-
-
-def plot(m, n, integrationOrder=4):
-    U = solve(m, n)
+def plot(m, n, sigma, f, integrationOrder=4):
+    U = solve(m, n, sigma, f)
     grid = SquareGrid(m, n)
 
     verticesMatrix = grid.verticesMatrix
@@ -27,13 +20,12 @@ def plot(m, n, integrationOrder=4):
         verticesMatrix[:, 0],
         verticesMatrix[:, 1],
         U,
-        triangles=triangles)
+        triangles=triangles,
+        cmap=plt.cm.seismic)
     plt.show()
 
 
-def f(x, y):
-    return 1
-
-
-def sigma(x, y):
-    return 1
+def solve(m, n, sigma, f, integrationOrder=4):
+    grid = SquareGrid(m, n)
+    fem = Fem(grid.verticesMatrix, grid.connectivityMatrix, grid.boundaryArray)
+    return fem.solve(f, sigma, integrationOrder)

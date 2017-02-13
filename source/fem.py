@@ -44,11 +44,11 @@ class Fem(object):
         return KLocal
 
     def getLocalLoadVector(self, detJ, f):
-        FLocal = np.zeros((3,1))
+        FLocal = np.zeros((3, 1))
         for i in range(3):
             Psi = self.getShapeFunction(i)
             FLocal[i] = detJ*integrate.dblquad(
-                lambda x, y: f(x,y)*Psi(x,y), 0, 1,
+                lambda x, y: f(x, y)*Psi(x, y), 0, 1,
                 lambda x: 0, lambda x: 1-x)[0]
         return FLocal
 
@@ -66,6 +66,7 @@ class Fem(object):
     def applyBoundary(self):
         self.K[self.boundaryArray, :] = 0
         self.K[:, self.boundaryArray] = 0
-        self.K[np.array([self.boundaryArray]).T, self.boundaryArray] = np.identity(len(self.boundaryArray))
+        self.K[np.array([self.boundaryArray]).T, self.boundaryArray] \
+            = np.identity(len(self.boundaryArray))
 
         self.F[self.boundaryArray] = 0
