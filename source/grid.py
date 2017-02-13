@@ -11,9 +11,7 @@ class Grid(object):
     """
     def __init__(self, vtk_file_name="example.vtk"):
         self.name = vtk_file_name
-        self.vertices_matrix = self.get_vertices_matrix()
-        self.connectivity_matrix = self.get_connectivity_matrix()
-        self.boundary_array = self.get_boundary_array()
+        self.connectivity_matrix = []
 
     def get_vertices_matrix(self):
         """
@@ -56,10 +54,3 @@ class Grid(object):
                 elif number_of_cells == 0:
                     break
         return np.array(connectivity_matrix)
-
-    def get_boundary_array(self):
-        """
-        Imports boundary array from performing an algorithm on connectivity
-        matrix.
-        """
-        pass

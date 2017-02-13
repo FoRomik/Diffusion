@@ -11,10 +11,10 @@ class Fem(object):
     """
     This class...
     """
-    def __init__(self, vertices_matrix, connectivity_matrix, boundary_array):
+    def __init__(self, vertices_matrix, connectivity_matrix):
         self.vertices_matrix = vertices_matrix
         self.connectivity_matrix = connectivity_matrix
-        self.boundary_array = boundary_array
+        self.boundary_array = self.get_boundary_array()
 
         self.local_stiffness = []
         self.local_load = []
@@ -22,20 +22,20 @@ class Fem(object):
         self.global_stiffness = np.zeros((vertices_number, vertices_number))  # (make sparse!)
         self.global_load = np.zeros((vertices_number, 1))
 
-    def solve(self, function, sigma, integration_order):
+    def solve(self, sigma, function, integration_order):
         """
         This is the main method of the Fem class which solves the diffusion
         equation.
         """
         for element in self.connectivity_matrix:
-            self.local_assembly(element, function, sigma)
+            self.local_assembly(element, sigma, function)
             self.global_assembly(
                 element, self.local_stiffness, self.local_load)
         self.apply_boundary()
         return np.linalg.solve(
             self.global_stiffness, self.global_load).flatten()
 
-    def local_assembly(self, element, function, sigma):
+    def local_assembly(self, element, sigma, function):
         """
         This method...
         """
@@ -62,6 +62,31 @@ class Fem(object):
         [[x_0, y_0], [x_1, y_1], [x_2, y_2]] = \
             self.vertices_matrix[element, :]
         return np.array([[x_1 - x_0, x_2 - x_0], [y_1 - y_0, y_2 - y_0]])
+
+    def get_boundary_array(self):
+        """
+        Performing an algorithm on connectivity
+        matrix.
+        """
+        edges = []
+        edge_map = dict()
+        boundary_set = set()
+        for triangle in self.connectivity_matrix:
+            triangle = sorted(triangle)
+            edges.append((triangle[0], triangle[1]))
+            edges.append((triangle[0], triangle[2]))
+            edges.append((triangle[1], triangle[2]))
+        for edge in edges:
+            if edge not in edge_map:
+                edge_map[edge] = 1
+            else:
+                edge_map[edge] += 1
+        for edge, number in edge_map.items():
+            if number == 1:
+                boundary_set.add(edge[0])
+                boundary_set.add(edge[1])
+        return list(boundary_set)
+
 
     def apply_boundary(self):
         """
