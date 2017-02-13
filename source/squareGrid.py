@@ -1,40 +1,55 @@
+"""
+This module creates triangulated square mesh.
+"""
+
 import numpy as np
 
 
 class SquareGrid(object):
     """
-    This is a square grid generator with triangularization.
+    This class...
     """
-    def __init__(self, m, n):
-        self.verticesMatrix = self.createVerticesMatrix(m, n)
-        self.connectivityMatrix = self.createConnectivityMatrix(m, n)
-        self.boundaryArray = self.createBoundaryArray(m, n)
+    def __init__(self, columns, rows):
+        self.vertices_matrix = create_vertices_matrix(columns, rows)
+        self.connectivity_matrix = create_connectivity_matrix(columns, rows)
+        self.boundary_array = create_boundary_array(columns, rows)
 
-    def createVerticesMatrix(self, m, n):
-        matrix = [[0 for i in range(2)] for j in range(m*n)]
-        for i in range(m*n):
-            for j in range(2):
-                if j == 0:
-                    matrix[i][j] = i % m/(m - 1)
-                else:
-                    matrix[i][j] = (i//m)/(m - 1)
-        return np.array(matrix)
+def create_vertices_matrix(columns, rows):
+    """
+    This function...
+    """
+    matrix = [[0 for i in range(2)] for j in range(columns*rows)]
+    for i in range(columns*rows):
+        for j in range(2):
+            if j == 0:
+                matrix[i][j] = i % columns/(columns - 1)
+            else:
+                matrix[i][j] = (i//columns)/(columns - 1)
+    return np.array(matrix)
 
-    def createConnectivityMatrix(self, m, n):
-        matrix = [[0, 1, m+1], [0, m+1, m]]
-        i = len(matrix)
-        j = len(matrix[0])
-        matrix = np.kron(matrix, np.ones((m-1, 1))) \
-            + np.kron(np.ones([i, j]), np.array([np.arange(m-1)]).T)
-        i = len(matrix)
-        j = len(matrix[0])
-        matrix = np.kron(matrix, np.ones((n-1, 1))) \
-            + np.kron(np.ones([i, j]), np.array([np.arange(n-1)]).T*m)
-        return np.array(np.int_(matrix))
+def create_connectivity_matrix(columns, rows):
+    """
+    This function...
+    """
+    matrix = [[0, 1, columns+1], [0, columns+1, columns]]
+    i = len(matrix)
+    j = len(matrix[0])
+    matrix = np.kron(matrix, np.ones((columns-1, 1))) \
+        + np.kron(np.ones([i, j]),
+                  np.transpose(np.array([np.arange(columns-1)])))
+    i = len(matrix)
+    j = len(matrix[0])
+    matrix = np.kron(matrix, np.ones((rows-1, 1))) \
+        + np.kron(np.ones([i, j]),
+                  np.transpose(np.array([np.arange(rows-1)]))*columns)
+    return np.array(np.int_(matrix))
 
-    def createBoundaryArray(self, m, n):
-        return np.array(np.hstack((
-                np.arange(m),  # bottom
-                np.arange(m, m*n, m),  # left
-                np.arange(2*m-1, m*n, m),  # right
-                np.arange(m*n-m+1, m*n-1))))  # top
+def create_boundary_array(columns, rows):
+    """
+    This function...
+    """
+    return np.array(np.hstack((
+        np.arange(columns),  # bottom
+        np.arange(columns, columns*rows, columns),  # left
+        np.arange(2*columns-1, columns*rows, columns),  # right
+        np.arange(columns*rows-columns+1, columns*rows-1))))  # top
