@@ -68,25 +68,18 @@ class Fem(object):
         Performing an algorithm on connectivity
         matrix.
         """
-        edges = []
-        edge_map = dict()
-        boundary_set = set()
+        edges = set()
+        boundaries = set()
         for triangle in self.connectivity_matrix:
             triangle = sorted(triangle)
-            edges.append((triangle[0], triangle[1]))
-            edges.append((triangle[0], triangle[2]))
-            edges.append((triangle[1], triangle[2]))
+            for i in [(0, 1), (0, 2), (1, 2)]:
+                if (triangle[i[0]], triangle[i[1]]) not in edges:
+                    edges.add((triangle[i[0]], triangle[i[1]]))
+                else: edges.remove((triangle[i[0]], triangle[i[1]]))
         for edge in edges:
-            if edge not in edge_map:
-                edge_map[edge] = 1
-            else:
-                edge_map[edge] += 1
-        for edge, number in edge_map.items():
-            if number == 1:
-                boundary_set.add(edge[0])
-                boundary_set.add(edge[1])
-        return list(boundary_set)
-
+            for vertex in edge:
+                boundaries.add(vertex)
+        return list(boundaries)
 
     def apply_boundary(self):
         """
