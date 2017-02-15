@@ -4,7 +4,7 @@ This module...
 
 import numpy as np
 #import scipy.sparse as sparse
-from source.triangle import Triangle
+from source import triangle
 
 
 class Fem(object):
@@ -42,9 +42,10 @@ class Fem(object):
         mapping_matrix = self.get_mapping_matrix(element)
         inverse_transpose = np.linalg.inv(mapping_matrix).T
         determinant = abs(np.linalg.det(mapping_matrix))
-        shape = Triangle(inverse_transpose, determinant)
-        self.local_stiffness = shape.get_local_stiffness(sigma)
-        self.local_load = shape.get_local_load(function)
+        self.local_stiffness = triangle.get_local_stiffness(
+            inverse_transpose, determinant, sigma)
+        self.local_load = triangle.get_local_load(
+            inverse_transpose, determinant, function)
 
     def global_assembly(self, element, stiffness, load):
         """

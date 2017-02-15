@@ -1,5 +1,5 @@
 """
-This module reads a vtk file and creates various arrays.
+This module imports information from a vtk file format.
 """
 
 import numpy as np
@@ -7,7 +7,8 @@ import numpy as np
 
 class Grid(object):
     """
-    This class of methods is a legacy vtk file reader.
+    This class of methods exports vertices matrix and connectivity matrix from
+    a vtk file format.
     """
     def __init__(self, vtk_file_name="example.vtk"):
         self.name = vtk_file_name
@@ -15,8 +16,8 @@ class Grid(object):
 
     def get_vertices_matrix(self):
         """
-        Imports vertices matrix after "POINTS" keyword and breaks after finding
-        the matrix.
+        This method imports vertices matrix after "POINTS" keyword and breaks
+        after finding the matrix.
         """
         number_of_vertices = None
         vertices_matrix = []
@@ -36,8 +37,8 @@ class Grid(object):
 
     def get_connectivity_matrix(self):
         """
-        Imports connectivity matrix after "CELLS" keyword and breaks after
-        finding the matrix.
+        This method imports connectivity matrix after "CELLS" keyword and
+        breaks after finding the matrix.
         """
         number_of_cells = None
         connectivity_matrix = []

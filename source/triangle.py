@@ -1,54 +1,16 @@
 """
-This module...
+This module contains information about reference triangle shape functions and
+numerically integrates over the triangle to get local stiffness matrix and load
+vector.
 """
 
 import numpy as np
 import scipy.integrate as integrate
 
 
-class Triangle(object):
-    """
-    This class...
-    """
-
-    def __init__(self, inverse_transpose, determinant):
-        self.inverse_transpose = inverse_transpose
-        self.determinant = determinant
-
-    def get_local_stiffness(self, sigma):
-        """
-        This method...
-        """
-        local_stiffness = np.zeros((3, 3))
-        for i in range(3):
-            for j in range(i+1):
-                nabla_psi_1 = get_shape_function_derivative(i)
-                nabla_psi_2 = get_shape_function_derivative(j)
-                integral_constant = self.inverse_transpose.dot(
-                    nabla_psi_1).dot(self.inverse_transpose.dot(
-                        nabla_psi_2))*self.determinant
-                integral = integral_constant*integrate.dblquad(
-                    sigma, 0, 1, lambda x: 0, lambda x: 1-x)[0]
-                local_stiffness[i][j] = integral
-                local_stiffness[j][i] = integral
-        return local_stiffness
-
-    def get_local_load(self, function):
-        """
-        This method...
-        """
-        local_load = np.zeros((3, 1))
-        psi = lambda x, y: 0
-        for i in range(3):
-            psi = get_shape_function(i)
-            local_load[i] = self.determinant*integrate.dblquad(
-                lambda x, y: function(x, y)*psi(x, y), 0, 1,
-                lambda x: 0, lambda x: 1-x)[0]
-        return local_load
-
 def get_shape_function(node):
     """
-    This function...
+    This function returns shape function for each of triangle's node.
     """
     # z0 =(0,0) z1 =(1,0) z2 =(0,1)
     shape_function_array = np.array(
@@ -57,8 +19,43 @@ def get_shape_function(node):
 
 def get_shape_function_derivative(node):
     """
-    This function...
+    This function returns shape function derivative for each of triangle's
+    node.
     """
     # z0 =(0,0) z1 =(1,0) z2 =(0,1)
     shape_function_matrix = np.array([[-1, -1], [1, 0], [0, 1]])
     return shape_function_matrix[node]
+
+def get_local_stiffness(inverse_transpose, determinant,  sigma):
+    """
+    This function calculates local stiffness matrix for triangle based on
+    triangle mapping information (inverse_transpose_matrix, determinant,
+    sigma).
+    """
+    local_stiffness = np.zeros((3, 3))
+    for i in range(3):
+        for j in range(i+1):
+            nabla_psi_1 = get_shape_function_derivative(i)
+            nabla_psi_2 = get_shape_function_derivative(j)
+            integral_constant = inverse_transpose.dot(
+                nabla_psi_1).dot(inverse_transpose.dot(
+                    nabla_psi_2))*determinant
+            integral = integral_constant*integrate.dblquad(
+                sigma, 0, 1, lambda x: 0, lambda x: 1-x)[0]
+            local_stiffness[i][j] = integral
+            local_stiffness[j][i] = integral
+    return local_stiffness
+
+def get_local_load(inverse_transpose, determinant, function):
+    """
+    This function calculates local load vector for triangle based on triangle
+    mapping information (inverse_transpose, determinant, function f).
+    """
+    local_load = np.zeros((3, 1))
+    psi = lambda x, y: 0
+    for i in range(3):
+        psi = get_shape_function(i)
+        local_load[i] = determinant*integrate.dblquad(
+            lambda x, y: function(x, y)*psi(x, y), 0, 1,
+            lambda x: 0, lambda x: 1-x)[0]
+    return local_load

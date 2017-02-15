@@ -7,7 +7,7 @@ import numpy as np
 
 class SquareGrid(object):
     """
-    This class...
+    This class generates a mesh based on the number of input rows and columns.
     """
     def __init__(self, columns, rows):
         self.columns = columns
@@ -15,7 +15,7 @@ class SquareGrid(object):
 
     def get_vertices_matrix(self):
         """
-        This method...
+        This method returns vertices matrix for specified square grid.
         """
         matrix = [[0 for i in range(2)] for j in range(self.columns*self.rows)]
         for i in range(self.columns*self.rows):
@@ -28,7 +28,7 @@ class SquareGrid(object):
 
     def get_connectivity_matrix(self):
         """
-        This method...
+        This method returns connectivity matrix for specified square grid.
         """
         matrix = [[0, 1, self.columns+1], [0, self.columns+1, self.columns]]
         i = len(matrix)
