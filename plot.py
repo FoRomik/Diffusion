@@ -1,5 +1,5 @@
 """
-This module...
+This module computes finite element method and plots the result.
 """
 
 import numpy as np
@@ -7,10 +7,11 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 from source.grid import Grid
-from source.squareGrid import SquareGrid
+from source.square_grid import Square_grid
 from source.fem import Fem
 
-def solve(vtk_file_name, sigma, function, integration_order=4):
+
+def plot(vtk_file_name, sigma, function, integration_order=4):
     """
     This function...
     """
@@ -34,11 +35,11 @@ def solve(vtk_file_name, sigma, function, integration_order=4):
         cmap=plt.cm.seismic)
     plt.show()
 
-def solve_square(columns, rows, sigma, function, integration_order=4):
+def plot_square(columns, rows, sigma, function, integration_order=4):
     """
     This function...
     """
-    grid = SquareGrid(columns, rows)
+    grid = Square_grid(columns, rows)
 
     vertices_matrix = grid.get_vertices_matrix()
     connectivity_matrix = grid.get_connectivity_matrix()

@@ -3,7 +3,7 @@ This module...
 """
 
 import numpy as np
-import scipy.sparse as sparse
+#import scipy.sparse as sparse
 from source import triangle
 
 
@@ -33,7 +33,7 @@ class Fem(object):
             self.global_assembly(
                 element, self.local_stiffness, self.local_load)
         self.apply_boundary()
-        partial_solution =  np.linalg.solve(
+        partial_solution = np.linalg.solve(
             self.global_stiffness, self.global_load).flatten()
         return self.modify_solution(partial_solution)
 
@@ -46,8 +46,7 @@ class Fem(object):
         determinant = abs(np.linalg.det(mapping_matrix))
         self.local_stiffness = triangle.get_local_stiffness(
             inverse_transpose, determinant, sigma)
-        self.local_load = triangle.get_local_load(
-            inverse_transpose, determinant, function)
+        self.local_load = triangle.get_local_load(determinant, function)
 
     def global_assembly(self, element, stiffness, load):
         """
@@ -75,12 +74,12 @@ class Fem(object):
         """
         edges = set()
         boundaries = set()
-        for triangle in self.connectivity_matrix:
-            triangle = sorted(triangle)
+        for element in self.connectivity_matrix:
+            element = sorted(element)
             for i in [(0, 1), (0, 2), (1, 2)]:
-                if (triangle[i[0]], triangle[i[1]]) not in edges:
-                    edges.add((triangle[i[0]], triangle[i[1]]))
-                else: edges.remove((triangle[i[0]], triangle[i[1]]))
+                if (element[i[0]], element[i[1]]) not in edges:
+                    edges.add((element[i[0]], element[i[1]]))
+                else: edges.remove((element[i[0]], element[i[1]]))
         for edge in edges:
             for vertex in edge:
                 boundaries.add(vertex)
@@ -91,11 +90,13 @@ class Fem(object):
         This method modifies global stiffness matrix and load vector so the
         boundary conditions are applied.
         """
-        P = np.delete(
+        interior_matrix = np.delete(
             np.identity(self.vertices_number), self.boundary_array, axis=1)
         self.global_stiffness = np.dot(
-            np.dot(np.transpose(P), self.global_stiffness), P)
-        self.global_load = np.dot(np.transpose(P), self.global_load)
+            np.dot(np.transpose(interior_matrix),
+                   self.global_stiffness), interior_matrix)
+        self.global_load = np.dot(
+            np.transpose(interior_matrix), self.global_load)
 
     def modify_solution(self, solution):
         """

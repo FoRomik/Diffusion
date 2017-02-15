@@ -26,7 +26,7 @@ def get_shape_function_derivative(node):
     shape_function_matrix = np.array([[-1, -1], [1, 0], [0, 1]])
     return shape_function_matrix[node]
 
-def get_local_stiffness(inverse_transpose, determinant,  sigma):
+def get_local_stiffness(inverse_transpose, determinant, sigma):
     """
     This function calculates local stiffness matrix for triangle based on
     triangle mapping information (inverse_transpose_matrix, determinant,
@@ -46,7 +46,7 @@ def get_local_stiffness(inverse_transpose, determinant,  sigma):
             local_stiffness[j][i] = integral
     return local_stiffness
 
-def get_local_load(inverse_transpose, determinant, function):
+def get_local_load(determinant, function):
     """
     This function calculates local load vector for triangle based on triangle
     mapping information (inverse_transpose, determinant, function f).

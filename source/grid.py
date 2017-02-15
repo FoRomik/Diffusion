@@ -10,9 +10,9 @@ class Grid(object):
     This class of methods exports vertices matrix and connectivity matrix from
     a vtk file format.
     """
-    def __init__(self, vtk_file_name="example.vtk"):
+    def __init__(self, vtk_file_name, output_file_name="result.vtk"):
         self.name = vtk_file_name
-        self.connectivity_matrix = [[]]
+        self.output = output_file_name
 
     def get_vertices_matrix(self):
         """
@@ -57,3 +57,26 @@ class Grid(object):
                 elif number_of_cells == 0:
                     break
         return np.array(connectivity_matrix)
+
+    def export(self, solution):
+        """
+        This method exports a vtk file with "solution" on z-axis.
+        """
+        number_of_vertices = None
+        iterator = 0
+        with open(self.output, "w") as new_file:
+            with open(self.name, "r") as old_file:
+                for line in old_file:
+                    words = line.split()
+                    if words:
+                        if words[0] == "POINTS":
+                            number_of_vertices = int(words[1])
+                            new_file.write(line)
+                            continue
+                    if number_of_vertices != 0 and number_of_vertices is not None:
+                        new_file.write("{0} {1} {2}\n".format(
+                            words[0], words[1], solution[iterator]))
+                        iterator += 1
+                        number_of_vertices -= 1
+                    else:
+                        new_file.write("{0}".format(line))
