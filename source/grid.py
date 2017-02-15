@@ -12,7 +12,7 @@ class Grid(object):
     """
     def __init__(self, vtk_file_name="example.vtk"):
         self.name = vtk_file_name
-        self.connectivity_matrix = []
+        self.connectivity_matrix = [[]]
 
     def get_vertices_matrix(self):
         """
@@ -29,7 +29,8 @@ class Grid(object):
                         number_of_vertices = int(words[1])
                         continue  # skip next if-statement and go to next line
                 if number_of_vertices != 0 and number_of_vertices is not None:
-                    vertices_matrix.append(np.int_(words)[:-1])
+                    vertices_matrix.append(
+                        [float(word) for word in words[:-1]])
                     number_of_vertices = number_of_vertices - 1
                 elif number_of_vertices == 0:
                     break  # search is done
@@ -50,7 +51,8 @@ class Grid(object):
                         number_of_cells = int(words[1])
                         continue
                 if number_of_cells != 0 and number_of_cells is not None:
-                    connectivity_matrix.append(np.int_(words)[1:])
+                    connectivity_matrix.append(
+                        [int(word) for word in words[1:]])
                     number_of_cells = number_of_cells - 1
                 elif number_of_cells == 0:
                     break

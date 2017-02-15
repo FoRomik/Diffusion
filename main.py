@@ -19,7 +19,7 @@ def solve(vtk_file_name, sigma, function, integration_order=4):
     vertices_matrix = grid.get_vertices_matrix()
     connectivity_matrix = grid.get_connectivity_matrix()
 
-    triangles = np.asarray(np.int_(connectivity_matrix))
+    triangles = np.asarray(connectivity_matrix)
 
     fem = Fem(vertices_matrix, connectivity_matrix)
     solution = fem.solve(sigma, function, integration_order)

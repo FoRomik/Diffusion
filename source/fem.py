@@ -3,7 +3,7 @@ This module...
 """
 
 import numpy as np
-#import scipy.sparse as sparse
+import scipy.sparse as sparse
 from source import triangle
 
 
@@ -18,9 +18,10 @@ class Fem(object):
 
         self.local_stiffness = []
         self.local_load = []
-        vertices_number = len(self.vertices_matrix)
-        self.global_stiffness = np.zeros((vertices_number, vertices_number))  # (make sparse!)
-        self.global_load = np.zeros((vertices_number, 1))
+        self.vertices_number = len(self.vertices_matrix)
+        self.global_stiffness = np.zeros((
+            self.vertices_number, self.vertices_number))  # (make sparse!)
+        self.global_load = np.zeros((self.vertices_number, 1))
 
     def solve(self, sigma, function, integration_order):
         """
@@ -32,12 +33,13 @@ class Fem(object):
             self.global_assembly(
                 element, self.local_stiffness, self.local_load)
         self.apply_boundary()
-        return np.linalg.solve(
+        partial_solution =  np.linalg.solve(
             self.global_stiffness, self.global_load).flatten()
+        return self.modify_solution(partial_solution)
 
     def local_assembly(self, element, sigma, function):
         """
-        This method...
+        This method computes local stiffness matrix and local load vector.
         """
         mapping_matrix = self.get_mapping_matrix(element)
         inverse_transpose = np.linalg.inv(mapping_matrix).T
@@ -49,7 +51,8 @@ class Fem(object):
 
     def global_assembly(self, element, stiffness, load):
         """
-        This method...
+        This method adds local stiffness matrix and local load vector to
+        global stiffness matrix and global load vector.
         """
         self.global_stiffness[
             np.transpose(np.array([element])), element] += stiffness
@@ -58,7 +61,8 @@ class Fem(object):
 
     def get_mapping_matrix(self, element):
         """
-        This method...
+        This method computes mapping matrix from original to reference
+        triangle.
         """
         [[x_0, y_0], [x_1, y_1], [x_2, y_2]] = \
             self.vertices_matrix[element, :]
@@ -66,8 +70,8 @@ class Fem(object):
 
     def get_boundary_array(self):
         """
-        Performing an algorithm on connectivity
-        matrix.
+        This method performs an algorithm on connectivity matrix to find nodes
+        on the edge of graph.
         """
         edges = set()
         boundaries = set()
@@ -84,12 +88,22 @@ class Fem(object):
 
     def apply_boundary(self):
         """
-        This method...
+        This method modifies global stiffness matrix and load vector so the
+        boundary conditions are applied.
         """
-        self.global_stiffness[self.boundary_array, :] = 0
-        self.global_stiffness[:, self.boundary_array] = 0
-        self.global_stiffness[
-            np.transpose(np.array([self.boundary_array])),
-            self.boundary_array] = np.identity(len(self.boundary_array))
+        P = np.delete(
+            np.identity(self.vertices_number), self.boundary_array, axis=1)
+        self.global_stiffness = np.dot(
+            np.dot(np.transpose(P), self.global_stiffness), P)
+        self.global_load = np.dot(np.transpose(P), self.global_load)
 
-        self.global_load[self.boundary_array] = 0
+    def modify_solution(self, solution):
+        """
+        This method modifies the solution so boundary vertices are included and
+        are set to 0.
+        """
+        interior = np.delete(
+            np.arange(self.vertices_number), self.boundary_array)
+        new_solution = np.zeros(self.vertices_number)
+        new_solution[interior] = solution
+        return new_solution
