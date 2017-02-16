@@ -5,11 +5,13 @@ This module imports information from a vtk file format.
 import numpy as np
 
 
+
 class Grid(object):
     """
     This class of methods exports vertices matrix and connectivity matrix from
     a vtk file format.
     """
+
     def __init__(self, vtk_file_name, output_file_name="result.vtk"):
         self.name = vtk_file_name
         self.output = output_file_name

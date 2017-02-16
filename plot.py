@@ -39,7 +39,7 @@ def plot_square(columns, rows, sigma, function, integration_order=4):
     """
     This function plots solution of a FEM method on square generated grid.
     """
-    grid = Square_grid(columns, rows)
+    grid = SquareGrid(columns, rows)
 
     vertices_matrix = grid.get_vertices_matrix()
     connectivity_matrix = grid.get_connectivity_matrix()

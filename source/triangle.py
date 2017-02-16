@@ -17,6 +17,7 @@ def get_shape_function(node):
         [lambda x, y: 1-x-y, lambda x, y: x, lambda x, y: y])
     return shape_function_array[node]
 
+
 def get_shape_function_derivative(node):
     """
     This function returns shape function derivative for each of triangle's
@@ -25,6 +26,7 @@ def get_shape_function_derivative(node):
     # z0 =(0,0) z1 =(1,0) z2 =(0,1)
     shape_function_matrix = np.array([[-1, -1], [1, 0], [0, 1]])
     return shape_function_matrix[node]
+
 
 def get_local_stiffness(
         inverse_transpose, determinant, sigma, integration_order):
@@ -47,6 +49,7 @@ def get_local_stiffness(
             local_stiffness[i][j] = integral
             local_stiffness[j][i] = integral
     return local_stiffness
+
 
 def get_local_load(determinant, function, integration_order):
     """
