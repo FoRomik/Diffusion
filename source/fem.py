@@ -3,7 +3,6 @@ This module solves diffusion equation using Finite elements method.
 """
 
 import numpy as np
-#import scipy.sparse as sparse
 from source import triangle
 
 

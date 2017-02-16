@@ -5,7 +5,7 @@ vector.
 """
 
 import numpy as np
-import scipy.integrate as integrate
+from source.integration import GaussianIntegration
 
 
 def get_shape_function(node):
@@ -43,9 +43,8 @@ def get_local_stiffness(
             integral_constant = inverse_transpose.dot(
                 nabla_psi_1).dot(inverse_transpose.dot(
                     nabla_psi_2))*determinant
-            integral = integral_constant*integrate.quad(
-                lambda x: integrate.fixed_quad(
-                    sigma, 0, 1-x, args=(x,), n=integration_order)[0], 0, 1)[0]
+            integral = integral_constant*GaussianIntegration(
+                integration_order).integrate(sigma)
             local_stiffness[i][j] = integral
             local_stiffness[j][i] = integral
     return local_stiffness
@@ -60,8 +59,6 @@ def get_local_load(determinant, function, integration_order):
     psi = lambda x, y: 0
     for i in range(3):
         psi = get_shape_function(i)
-        local_load[i] = determinant*integrate.quad(
-            lambda x: integrate.fixed_quad(
-                lambda x, y: function(x, y)*psi(x, y),
-                0, 1-x, args=(x,), n=integration_order)[0], 0, 1)[0]
+        local_load[i] = determinant*GaussianIntegration(
+            integration_order).integrate(lambda x, y: psi(x, y)*function(x, y))
     return local_load
