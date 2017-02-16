@@ -1,5 +1,5 @@
 """
-This module...
+This module solves diffusion equation using Finite elements method.
 """
 
 import numpy as np
@@ -9,7 +9,9 @@ from source import triangle
 
 class Fem(object):
     """
-    This class...
+    This class of methods solves diffusion equation using FEM based on input
+    vertices matrix and connectivity matrix, function f, function sigma and
+    integration order.
     """
     def __init__(self, vertices_matrix, connectivity_matrix):
         self.vertices_matrix = vertices_matrix
@@ -29,7 +31,8 @@ class Fem(object):
         equation.
         """
         for element in self.connectivity_matrix:
-            self.local_assembly(element, sigma, function)
+            self.local_assembly(
+                element, sigma, function, integration_order)
             self.global_assembly(
                 element, self.local_stiffness, self.local_load)
         self.apply_boundary()
@@ -37,7 +40,7 @@ class Fem(object):
             self.global_stiffness, self.global_load).flatten()
         return self.modify_solution(partial_solution)
 
-    def local_assembly(self, element, sigma, function):
+    def local_assembly(self, element, sigma, function, integration_order):
         """
         This method computes local stiffness matrix and local load vector.
         """
@@ -45,8 +48,9 @@ class Fem(object):
         inverse_transpose = np.linalg.inv(mapping_matrix).T
         determinant = abs(np.linalg.det(mapping_matrix))
         self.local_stiffness = triangle.get_local_stiffness(
-            inverse_transpose, determinant, sigma)
-        self.local_load = triangle.get_local_load(determinant, function)
+            inverse_transpose, determinant, sigma, integration_order)
+        self.local_load = triangle.get_local_load(
+            determinant, function, integration_order)
 
     def global_assembly(self, element, stiffness, load):
         """

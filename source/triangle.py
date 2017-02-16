@@ -26,7 +26,8 @@ def get_shape_function_derivative(node):
     shape_function_matrix = np.array([[-1, -1], [1, 0], [0, 1]])
     return shape_function_matrix[node]
 
-def get_local_stiffness(inverse_transpose, determinant, sigma):
+def get_local_stiffness(
+        inverse_transpose, determinant, sigma, integration_order):
     """
     This function calculates local stiffness matrix for triangle based on
     triangle mapping information (inverse_transpose_matrix, determinant,
@@ -40,13 +41,14 @@ def get_local_stiffness(inverse_transpose, determinant, sigma):
             integral_constant = inverse_transpose.dot(
                 nabla_psi_1).dot(inverse_transpose.dot(
                     nabla_psi_2))*determinant
-            integral = integral_constant*integrate.dblquad(
-                sigma, 0, 1, lambda x: 0, lambda x: 1-x)[0]
+            integral = integral_constant*integrate.quad(
+                lambda x: integrate.fixed_quad(
+                    sigma, 0, 1-x, args=(x,), n=integration_order)[0], 0, 1)[0]
             local_stiffness[i][j] = integral
             local_stiffness[j][i] = integral
     return local_stiffness
 
-def get_local_load(determinant, function):
+def get_local_load(determinant, function, integration_order):
     """
     This function calculates local load vector for triangle based on triangle
     mapping information (inverse_transpose, determinant, function f).
@@ -55,7 +57,8 @@ def get_local_load(determinant, function):
     psi = lambda x, y: 0
     for i in range(3):
         psi = get_shape_function(i)
-        local_load[i] = determinant*integrate.dblquad(
-            lambda x, y: function(x, y)*psi(x, y), 0, 1,
-            lambda x: 0, lambda x: 1-x)[0]
+        local_load[i] = determinant*integrate.quad(
+            lambda x: integrate.fixed_quad(
+                lambda x, y: function(x, y)*psi(x, y),
+                0, 1-x, args=(x,), n=integration_order)[0], 0, 1)[0]
     return local_load

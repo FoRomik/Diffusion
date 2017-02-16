@@ -7,13 +7,13 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 from source.grid import Grid
-from source.square_grid import Square_grid
+from source.square import SquareGrid
 from source.fem import Fem
 
 
 def plot(vtk_file_name, sigma, function, integration_order=4):
     """
-    This function...
+    This function plots solution of a FEM method on input grid.
     """
     grid = Grid(vtk_file_name)
 
@@ -37,7 +37,7 @@ def plot(vtk_file_name, sigma, function, integration_order=4):
 
 def plot_square(columns, rows, sigma, function, integration_order=4):
     """
-    This function...
+    This function plots solution of a FEM method on square generated grid.
     """
     grid = Square_grid(columns, rows)
 

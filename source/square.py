@@ -5,7 +5,7 @@ This module creates triangulated square mesh.
 import numpy as np
 
 
-class Square_grid(object):
+class SquareGrid(object):
     """
     This class generates a mesh based on the number of input rows and columns.
     """
@@ -35,7 +35,7 @@ class Square_grid(object):
         j = len(matrix[0])
         matrix = np.kron(matrix, np.ones((self.columns-1, 1))) \
             + np.kron(np.ones([i, j]),
-                np.transpose(np.array([np.arange(self.columns-1)])))
+                      np.transpose(np.array([np.arange(self.columns-1)])))
         i = len(matrix)
         j = len(matrix[0])
         matrix = np.kron(matrix, np.ones((self.rows-1, 1))) \

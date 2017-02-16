@@ -27,7 +27,7 @@ class Test_Fem(unittest.TestCase):
 
     def test_local_assembly(self):
         fem = Fem(Test_Fem.vertices_matrix, Test_Fem.connectivity_matrix)
-        fem.local_assembly([0,1,4], lambda x, y: 1, lambda x, y: 1)
+        fem.local_assembly([0,1,4], lambda x, y: 1, lambda x, y: 1, 5)
         local_stiffness =[
             [ 0.5, -0.5, 0.],
             [-0.5, 1., -0.5],
