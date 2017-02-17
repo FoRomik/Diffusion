@@ -39,25 +39,21 @@ class Fem(object):
         This method computes local stiffness matrix and local load vector and
         adds them to global stiffness matrix and global load vector.
         """
-        mapping_matrix = self.get_mapping_matrix(element)
-        inverse_transpose = np.linalg.inv(mapping_matrix).T
-        determinant = abs(np.linalg.det(mapping_matrix))
+        [[x_0, y_0], [x_1, y_1], [x_2, y_2]] = self.vertices_matrix[element, :]
+        jacobian = np.array([[x_1 - x_0, x_2 - x_0], [y_1 - y_0, y_2 - y_0]])
+        x_mapping = lambda x, y: x_0 + (x_1 - x_0)*x + (x_2 - x_0)*y
+        y_mapping = lambda x, y: y_0 + (y_1 - y_0)*x + (y_2 - y_0)*y
+        new_function = lambda x, y: function(x_mapping(x, y), y_mapping(x, y))
+        new_sigma = lambda x, y: sigma(x_mapping(x,y), y_mapping(x, y))
+        inverse_transpose = np.transpose(np.linalg.inv(jacobian))
+        determinant = abs(np.linalg.det(jacobian))
         local_stiffness = triangle.get_local_stiffness(
-            inverse_transpose, determinant, sigma, integration_order)
+            inverse_transpose, determinant, new_sigma, integration_order)
         local_load = triangle.get_local_load(
-            determinant, function, integration_order)
+            determinant, new_function, integration_order)
         self.global_stiffness[
             np.transpose(np.array([element])), element] += local_stiffness
         self.global_load[element] += local_load
-
-    def get_mapping_matrix(self, element):
-        """
-        This method computes mapping matrix from original to reference
-        triangle.
-        """
-        [[x_0, y_0], [x_1, y_1], [x_2, y_2]] = \
-            self.vertices_matrix[element, :]
-        return np.array([[x_1 - x_0, x_2 - x_0], [y_1 - y_0, y_2 - y_0]])
 
     def get_boundary_array(self):
         """

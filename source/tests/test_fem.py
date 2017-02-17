@@ -56,11 +56,6 @@ class TestFem(unittest.TestCase):
         for i in range(len(global_load)):
             self.assertAlmostEqual(fem.global_load[i][0], global_load[i][0])
 
-    def test_get_mapping_matrix(self):
-        result = np.array([[0.5, 0.5],[0., 0.5]])
-        fem = Fem(TestFem.vertices_matrix, TestFem.connectivity_matrix)
-        self.assertTrue((fem.get_mapping_matrix([0, 1, 4]) == result).all())
-
     def test_get_boundary_array(self):
         fem = Fem(TestFem.vertices_matrix, TestFem.connectivity_matrix)
         boundary_array = [0, 1, 2, 3, 5, 6, 7, 8]
