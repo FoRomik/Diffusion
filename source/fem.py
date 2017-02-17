@@ -39,12 +39,9 @@ class Fem(object):
         This method computes local stiffness matrix and local load vector and
         adds them to global stiffness matrix and global load vector.
         """
-        [[x_0, y_0], [x_1, y_1], [x_2, y_2]] = self.vertices_matrix[element, :]
-        jacobian = np.array([[x_1 - x_0, x_2 - x_0], [y_1 - y_0, y_2 - y_0]])
-        x_mapping = lambda x, y: x_0 + (x_1 - x_0)*x + (x_2 - x_0)*y
-        y_mapping = lambda x, y: y_0 + (y_1 - y_0)*x + (y_2 - y_0)*y
-        new_function = lambda x, y: function(x_mapping(x, y), y_mapping(x, y))
-        new_sigma = lambda x, y: sigma(x_mapping(x,y), y_mapping(x, y))
+        new_function = self.transform_function(element, function)
+        new_sigma = self.transform_function(element, sigma)
+        jacobian = self.get_jacobian(element)
         inverse_transpose = np.transpose(np.linalg.inv(jacobian))
         determinant = abs(np.linalg.det(jacobian))
         local_stiffness = triangle.get_local_stiffness(
@@ -54,6 +51,23 @@ class Fem(object):
         self.global_stiffness[
             np.transpose(np.array([element])), element] += local_stiffness
         self.global_load[element] += local_load
+
+    def get_jacobian(self, element):
+        """
+        This method computes Jacobian matrix based on input element.
+        """
+        [[x_0, y_0], [x_1, y_1], [x_2, y_2]] = self.vertices_matrix[element, :]
+        return np.array([[x_1 - x_0, x_2 - x_0], [y_1 - y_0, y_2 - y_0]])
+
+    def transform_function(self, element, function):
+        """
+        This method transforms function to reference triangle coordinate
+        system.
+        """
+        [[x_0, y_0], [x_1, y_1], [x_2, y_2]] = self.vertices_matrix[element, :]
+        x_mapping = lambda x, y: x_0 + (x_1 - x_0)*x + (x_2 - x_0)*y
+        y_mapping = lambda x, y: y_0 + (y_1 - y_0)*x + (y_2 - y_0)*y
+        return lambda x, y: function(x_mapping(x, y), y_mapping(x, y))
 
     def get_boundary_array(self):
         """
