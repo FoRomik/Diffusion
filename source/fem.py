@@ -17,8 +17,6 @@ class Fem(object):
         self.connectivity_matrix = connectivity_matrix
         self.boundary_array = self.get_boundary_array()
 
-        self.local_stiffness = []
-        self.local_load = []
         self.vertices_number = len(self.vertices_matrix)
         self.global_stiffness = np.zeros((
             self.vertices_number, self.vertices_number))  # (make sparse!)
@@ -30,36 +28,27 @@ class Fem(object):
         equation.
         """
         for element in self.connectivity_matrix:
-            self.local_assembly(
-                element, sigma, function, integration_order)
-            self.global_assembly(
-                element, self.local_stiffness, self.local_load)
+            self.assembly(element, sigma, function, integration_order)
         self.apply_boundary()
         partial_solution = np.linalg.solve(
             self.global_stiffness, self.global_load).flatten()
         return self.modify_solution(partial_solution)
 
-    def local_assembly(self, element, sigma, function, integration_order):
+    def assembly(self, element, sigma, function, integration_order):
         """
-        This method computes local stiffness matrix and local load vector.
+        This method computes local stiffness matrix and local load vector and
+        adds them to global stiffness matrix and global load vector.
         """
         mapping_matrix = self.get_mapping_matrix(element)
         inverse_transpose = np.linalg.inv(mapping_matrix).T
         determinant = abs(np.linalg.det(mapping_matrix))
-        self.local_stiffness = triangle.get_local_stiffness(
+        local_stiffness = triangle.get_local_stiffness(
             inverse_transpose, determinant, sigma, integration_order)
-        self.local_load = triangle.get_local_load(
+        local_load = triangle.get_local_load(
             determinant, function, integration_order)
-
-    def global_assembly(self, element, stiffness, load):
-        """
-        This method adds local stiffness matrix and local load vector to
-        global stiffness matrix and global load vector.
-        """
         self.global_stiffness[
-            np.transpose(np.array([element])), element] += stiffness
-        self.global_load[element] += load
-
+            np.transpose(np.array([element])), element] += local_stiffness
+        self.global_load[element] += local_load
 
     def get_mapping_matrix(self, element):
         """
