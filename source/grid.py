@@ -53,8 +53,9 @@ class Grid(object):
                         number_of_cells = int(words[1])
                         continue
                 if number_of_cells != 0 and number_of_cells is not None:
-                    connectivity_matrix.append(
-                        [int(word) for word in words[1:]])
+                    if int(words[0]) == 3: # If triangle
+                        connectivity_matrix.append(
+                            [int(word) for word in words[1:]])
                     number_of_cells = number_of_cells - 1
                 elif number_of_cells == 0:
                     break
