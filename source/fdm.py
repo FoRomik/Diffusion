@@ -8,18 +8,6 @@ class Fdm(object):
         self.hx = hx
         self.hy = hy
 
-    def solve(self, sigma, dx_sigma, dy_sigma, function):
-        matrix_a = self.compute_a(sigma, dx_sigma, dy_sigma)
-        vector_b = self.compute_b(function)
-        partial_solution = np.linalg.solve(matrix_a, vector_b).flatten()
-        solution = np.zeros((self.m, self.n))
-        counter = 0
-        for i in range(1, self.m-1):
-            for j in range(1,self.n-1):
-                solution[i][j] = partial_solution[counter]
-                counter = counter + 1
-        return solution
-
     def compute_a(self, sigma, dx_sigma, dy_sigma):
         rank = (self.m-2)*(self.n-2)
         matrix_a = np.zeros((rank, rank))
@@ -47,3 +35,12 @@ class Fdm(object):
             y = (i//(self.m-2)+1)*self.hy
             vector_b[i] = function(x,y)
         return vector_b
+
+    def modify_solution(self, solution):
+        new_solution = np.zeros((self.m, self.n))
+        counter = 0
+        for i in range(1, self.m-1):
+            for j in range(1,self.n-1):
+                new_solution[i][j] = solution[counter]
+                counter = counter + 1
+        return new_solution

@@ -30,9 +30,15 @@ class Fem(object):
         for element in self.connectivity_matrix:
             self.assembly(element, sigma, function, integration_order)
         self.apply_boundary()
-        partial_solution = np.linalg.solve(
-            self.global_stiffness, self.global_load).flatten()
-        return self.modify_solution(partial_solution)
+#        partial_solution = np.linalg.solve(
+#            self.global_stiffness, self.global_load).flatten()
+#        return self.modify_solution(partial_solution)
+
+    def get_matrix_a(self):
+        return self.global_stiffness
+
+    def get_vector_b(self):
+        return self.global_load
 
     def assembly(self, element, sigma, function, integration_order):
         """
