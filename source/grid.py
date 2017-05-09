@@ -3,7 +3,7 @@ This module imports information from a vtk file format.
 """
 
 import numpy as np
-
+import os
 
 
 class Grid(object):
@@ -12,9 +12,8 @@ class Grid(object):
     a vtk file format.
     """
 
-    def __init__(self, vtk_file_name, output_file_name="result.vtk"):
+    def __init__(self, vtk_file_name):
         self.name = vtk_file_name
-        self.output = output_file_name
 
     def get_vertices_matrix(self):
         """
@@ -61,25 +60,26 @@ class Grid(object):
                     break
         return np.array(connectivity_matrix)
 
-    def export(self, solution):
-        """
-        This method exports a vtk file with "solution" on z-axis.
-        """
-        number_of_vertices = None
-        iterator = 0
-        with open(self.output, "w") as new_file:
-            with open(self.name, "r") as old_file:
-                for line in old_file:
-                    words = line.split()
-                    if words:
-                        if words[0] == "POINTS":
-                            number_of_vertices = int(words[1])
-                            new_file.write(line)
-                            continue
-                    if number_of_vertices != 0 and number_of_vertices is not None:
-                        new_file.write("{0} {1} {2}\n".format(
-                            words[0], words[1], solution[iterator]))
-                        iterator += 1
-                        number_of_vertices -= 1
-                    else:
-                        new_file.write("{0}".format(line))
+    def export(self, vertices_matrix, connectivity_matrix):
+        filename = os.path.basename(self.name)
+        number_of_vertices = len(vertices_matrix)
+        number_of_triangles = len(connectivity_matrix)
+        with open(self.name, "w") as file:
+            file.write("# vtk DataFile Version 2.0\n")
+            file.write("{0}, Created by Gmsh\n".format(filename))
+            file.write("ASCII\n")
+            file.write("DATASET UNSTRUCTURED_GRID\n")
+            file.write("POINTS {0} double\n".format(number_of_vertices))
+            for i in range(number_of_vertices):
+                file.write("{0} {1} 0\n".format(
+                    vertices_matrix[i][0],
+                    vertices_matrix[i][1]))
+            file.write("\nCELLS {0} 0\n".format(number_of_triangles))
+            for i in range(number_of_triangles):
+                file.write("3 {0} {1} {2}\n".format(
+                    connectivity_matrix[i, 0],
+                    connectivity_matrix[i, 1],
+                    connectivity_matrix[i, 2]))
+            file.write("\nCELL_TYPES {0}\n".format(number_of_triangles))
+            for i in range(number_of_triangles):
+                file.write("5\n")
