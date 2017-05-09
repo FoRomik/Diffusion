@@ -1,16 +1,28 @@
 from source.grid import Grid
-from source.partition import Partition
+from source.fem import Fem
+from source.fdm import Fdm
+from source.solve import Solve
+from source.plot import Plot
 
-grid = Grid("../vtk examples/airfoil_exterior.vtk")
-connectivity_matrix = grid.get_connectivity_matrix()
-vertices_matrix = grid.get_vertices_matrix()
-partition = Partition(vertices_matrix, connectivity_matrix)
-parts = partition.split_graph(2)
-connectivity0 = partition.compute_connectivity(0, parts)
-connectivity1 = partition.compute_connectivity(1, parts)
+# Example FEM solver and plotter:
 
-grid0 = Grid("export0.vtk")
-grid1 = Grid("export1.vtk")
+# femGrid = Grid("../vtk examples/airfoil_exterior.vtk")
+# fem = Fem(femGrid.get_vertices_matrix(), femGrid.get_connectivity_matrix())
+# fem.solve(lambda x, y: 1, lambda x, y: 1)
+# solver = Solve(fem.get_matrix_a(), fem.get_vector_b())
+# solution = solver.default()
+# solution = fem.modify_solution(solution)
+# plotter = Plot(solution)
+# plotter.FEM(femGrid.get_vertices_matrix(), femGrid.get_connectivity_matrix())
 
-grid0.export(vertices_matrix, connectivity0)
-grid1.export(vertices_matrix, connectivity1)
+# Example FDM solver and plotter:
+
+# fdm = Fdm(50, 50, 0.02, 0.02)
+# (X, Y) = fdm.grid()
+# A = fdm.get_matrix_a(lambda x, y: 1, lambda x, y: 0, lambda x, y: 0)
+# b = fdm.get_vector_b(lambda x, y: 1)
+# solver = Solve(A, b)
+# solution = solver.direct()
+# solution = fdm.modify_solution(solution)
+# plotter = Plot(solution)
+# plotter.FDM(X, Y)

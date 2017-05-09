@@ -38,7 +38,7 @@ class Plot(object):
         axis.plot_trisurf(
             vertices_matrix[:, 0],
             vertices_matrix[:, 1],
-            solution,
+            self.solution,
             triangles=triangles,
             cmap=plt.cm.seismic)
         plt.show()

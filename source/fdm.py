@@ -8,7 +8,7 @@ class Fdm(object):
         self.hx = hx
         self.hy = hy
 
-    def compute_a(self, sigma, dx_sigma, dy_sigma):
+    def get_matrix_a(self, sigma, dx_sigma, dy_sigma):
         rank = (self.m-2)*(self.n-2)
         matrix_a = np.zeros((rank, rank))
         for i in range(rank):
@@ -17,17 +17,22 @@ class Fdm(object):
                 y = (i//(self.m-2)+1)*self.hy
                 if j == i:
                     matrix_a[i][j] = 2*sigma(x,y) * (1/self.hx**2 + 1/self.hy**2)
-                elif j == i+1:
+                elif j == i+1 and j%(self.m-2)!=0:
                     matrix_a[i][j] = -sigma(x,y)/self.hx**2 - dx_sigma(x,y)/(2*self.hx)
-                elif j == i-1:
+                elif j == i-1 and i%(self.m-2)!=0:
                     matrix_a[i][j] = -sigma(x,y)/self.hx**2 + dx_sigma(x,y)/(2*self.hx)
-                elif j == i+self.m-2:
+                elif j == i+(self.m-2):
                     matrix_a[i][j] = -sigma(x,y)/self.hy**2 + dy_sigma(x,y)/(2*self.hy)
-                elif j == i-self.m-2:
+                elif j == i-(self.m-2):
                     matrix_a[i][j] = -sigma(x,y)/self.hy**2 + dy_sigma(x,y)/(2*self.hy)
         return matrix_a
 
-    def compute_b(self, function):
+    def grid(self):
+        X = [i*self.hx for i in range(self.m)]
+        Y = [i*self.hy for i in range(self.n)]
+        return (X, Y)
+
+    def get_vector_b(self, function):
         rank = (self.m-2)*(self.n-2)
         vector_b = np.zeros(rank)
         for i in range(rank):

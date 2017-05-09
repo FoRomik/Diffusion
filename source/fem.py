@@ -22,7 +22,7 @@ class Fem(object):
             self.vertices_number, self.vertices_number))  # (make sparse!)
         self.global_load = np.zeros((self.vertices_number, 1))
 
-    def solve(self, sigma, function, integration_order):
+    def solve(self, sigma, function, integration_order=4):
         """
         This is the main method of the Fem class which solves the diffusion
         equation.
