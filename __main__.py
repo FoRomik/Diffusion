@@ -1,7 +1,7 @@
 from source.grid import Grid
 from source.partition import Partition
 
-grid = Grid("bend.vtk")
+grid = Grid("../vtk examples/airfoil_exterior.vtk")
 connectivity_matrix = grid.get_connectivity_matrix()
 vertices_matrix = grid.get_vertices_matrix()
 partition = Partition(vertices_matrix, connectivity_matrix)

@@ -39,6 +39,10 @@ class Partition(object):
             i = i + 1
         connections = []
         for row in self.connectivity_matrix.tolist():
-            if row[0] in included or row[1] in included or row[2] in included:
+            count = 0
+            if row[0] in included: count = count + 1
+            if row[1] in included: count = count + 1
+            if row[2] in included: count = count + 1
+            if count > 1: # triangle has at least 2 nodes
                 connections.append(row)
         return np.matrix(connections)
