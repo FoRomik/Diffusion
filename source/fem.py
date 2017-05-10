@@ -19,7 +19,7 @@ class Fem(object):
 
         self.vertices_number = len(self.vertices_matrix)
         self.global_stiffness = np.zeros((
-            self.vertices_number, self.vertices_number))  # (make sparse!)
+            self.vertices_number, self.vertices_number))
         self.global_load = np.zeros((self.vertices_number, 1))
 
     def solve(self, sigma, function, integration_order=4):
@@ -30,9 +30,6 @@ class Fem(object):
         for element in self.connectivity_matrix:
             self.assembly(element, sigma, function, integration_order)
         self.apply_boundary()
-#        partial_solution = np.linalg.solve(
-#            self.global_stiffness, self.global_load).flatten()
-#        return self.modify_solution(partial_solution)
 
     def get_matrix_a(self):
         return self.global_stiffness

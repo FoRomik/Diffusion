@@ -24,6 +24,9 @@ class Plot(object):
         # Plot the surface.
         surf = ax.plot_surface(X, Y, self.solution, cmap=cm.coolwarm,
                                linewidth=0, antialiased=False)
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
         plt.show()
 
     def FEM(self, vertices_matrix, connectivity_matrix):
@@ -34,11 +37,15 @@ class Plot(object):
         triangles = np.asarray(connectivity_matrix)
 
         fig = plt.figure()
-        axis = fig.gca(projection='3d')
-        axis.plot_trisurf(
+        ax = fig.gca(projection='3d')
+        ax.plot_trisurf(
             vertices_matrix[:, 0],
             vertices_matrix[:, 1],
             self.solution,
             triangles=triangles,
-            cmap=plt.cm.seismic)
+            cmap=plt.cm.coolwarm)
+
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
         plt.show()

@@ -26,19 +26,46 @@ class Solve(object):
         b = self.vector_b
         counter = method_counter()
         if subtype == 'gmres':
-            solution = linalg.gmres(A, b, callback=counter)
+            (x, info) = linalg.gmres(A, b, callback=counter)
         elif subtype == 'minres':
-            solution = linalg.minres(A, b, callback=counter)
+            (x, info) = linalg.minres(A, b, callback=counter)
         elif subtype == 'cg':
-            solution = linalg.cg(A, b, callback=counter)
-        print(counter.iter)
-        return solution
+            (x, info) = linalg.cg(A, b, callback=counter)
+        print(counter.niter)
+        return x
 
     def AMG(self):
         pass
 
-    def parallel(self, subtype):
-        pass
+    def parallel(self, krylov='cg', pc='icc'):
+        assert krylov in ['cg', 'gmres'] and pc in ['icc', 'jacobi', 'bjacobi']
+
+        A = sparse.csr_matrix(self.matrix_a)
+        mat = PETSc.Mat().createAIJ(size=A.shape,
+                                    csr=(A.indptr, A.indices, A.data))
+        mat.setUp()
+        mat.assemblyBegin()
+        mat.assemblyEnd()
+
+        # create linear solver
+        ksp = PETSc.KSP()
+        ksp.create(PETSc.COMM_WORLD)
+
+        # set Krylov subspace method
+        ksp.setType(krylov)
+        # set preconditioner
+        ksp.getPC().setType(pc)
+
+        # obtain sol & rhs vectors
+        x, b = mat.getVecs()
+        x.set(0)
+        b.createWithArray(self.vector_b)
+        # and next solve
+        ksp.setOperators(mat)
+        ksp.setFromOptions()
+        ksp.solve(b, x)
+
+        return x[...]
 
 
 class method_counter(object):
