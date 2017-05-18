@@ -11,10 +11,9 @@ from source.fem import Fem
 #from source.solve import Solve (we're implementing solver!)
 from source.plot import Plot
 
-def Schwarz(vtk_filename, iterations):
+def Schwarz(vtk_filename, eps):
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
-    print(rank)
 
     if rank == 0:
         # obtain grid from vtk file
@@ -42,13 +41,13 @@ def Schwarz(vtk_filename, iterations):
         comm.send(cell_tasks, dest=1, tag=3)
 
         # Dimensions
-        higher = len(cell_tasks)
+        dimension = len(cell_tasks)
 
         # Initial guess
-        x = np.zeros(higher)
+        x = np.zeros((dimension, 1))
 
         # Compute restriction matrix
-        identity = np.identity(higher)
+        identity = np.identity(dimension)
         modified_cell_tasks = [True if task==0 else False for task in cell_tasks]
         R0 = identity[modified_cell_tasks]
         R0T = R0.transpose()
@@ -58,18 +57,21 @@ def Schwarz(vtk_filename, iterations):
 
         # invert matrix
         inv0 = linalg.inv(A0)
-
-        for i in range(iterations):
-            comm.send(x, dest=1, tag=4)
-            residual = b-A.dot(x)
-            delta0 = R0T.dot(inv0.todense()).dot(R0).dot(residual)
-            delta1 = comm.recv(source=1, tag=5)
+        error = np.linalg.norm(b-A.dot(x))
+        while error > eps:
+            comm.send(True, dest=1, tag=4)
+            comm.send(x, dest=1, tag=5)
+            delta0 = R0T.dot(inv0.todense()).dot(R0).dot(b-A.dot(x))
+            delta1 = comm.recv(source=1, tag=6)
             x = x + delta0 + delta1
-            print(x)
+            residual = b-A.dot(x)
+            error = np.linalg.norm(residual)
+            print(error)
+        comm.send(False, dest=1, tag=4)
 
-        #x = fem.modify_solution(x)
-        #plot = Plot(x)
-        #plot.FEM(vertices_matrix, connectivity_matrix)
+        x = fem.modify_solution(x)
+        plot = Plot(x)
+        plot.FEM(vertices_matrix, connectivity_matrix)
 
 
     elif rank == 1:
@@ -87,10 +89,10 @@ def Schwarz(vtk_filename, iterations):
         b = fem.get_vector_b()
 
         # Dimensions
-        higher = len(cell_tasks)
+        dimension = len(cell_tasks)
 
         # Compute restriction matrix
-        identity = np.identity(higher)
+        identity = np.identity(dimension)
         modified_cell_tasks = [True if task==1 else False for task in cell_tasks]
         R1 = identity[modified_cell_tasks]
         R1T = R1.transpose()
@@ -101,10 +103,13 @@ def Schwarz(vtk_filename, iterations):
         # invert matrix
         inv1 = linalg.inv(A1)
 
-        for i in range(iterations):
-            x = comm.recv(source=0, tag=4)
+        while True:
+            iterate = comm.recv(source=0, tag=4)
+            if iterate==False:
+                break
+            x = comm.recv(source=0, tag=5)
             delta1 = R1T.dot(inv1.todense()).dot(R1).dot(b-A.dot(x))
-            comm.send(delta1, dest=0, tag=5)
+            comm.send(delta1, dest=0, tag=6)
 
 def intersection(vertices_matrix, connectivity0, connectivity1):
     intersect = []
@@ -115,7 +120,7 @@ def intersection(vertices_matrix, connectivity0, connectivity1):
 
 parser = ArgumentParser(description = "Perform direct Schwarz method on vtk grid.")
 parser.add_argument('--vtk', '-v', help='name of vtk file', type=str, dest='vtk')
-parser.add_argument('--iterations', '-i', help='number of iterations', type=int, dest='iter')
+parser.add_argument('--epsilon', '-e', help='max error', type=float, dest='eps')
 
 arguments= parser.parse_args()
-Schwarz(arguments.vtk, arguments.iter)
+Schwarz(arguments.vtk, arguments.eps)
