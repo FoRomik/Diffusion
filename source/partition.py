@@ -45,4 +45,4 @@ class Partition(object):
             if row[2] in included: count = count + 1
             if count > 1: # triangle has at least 2 nodes
                 connections.append(row)
-        return np.matrix(connections)
+        return connections

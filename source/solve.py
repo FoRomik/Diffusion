@@ -10,10 +10,6 @@ class Solve(object):
         self.matrix_a = matrix_a
         self.vector_b = vector_b
 
-    def default(self):
-        solution = np.linalg.solve(self.matrix_a, self.vector_b)
-        return solution.flatten()
-
     def direct(self):
         A = sparse.csr_matrix(self.matrix_a)
         b = self.vector_b
@@ -34,11 +30,20 @@ class Solve(object):
         print(counter.niter)
         return x
 
-    def AMG(self):
-        pass
-
-    def parallel(self, krylov='cg', pc='icc'):
-        assert krylov in ['cg', 'gmres'] and pc in ['icc', 'jacobi', 'bjacobi']
+    def parallel(self, pc='icc', krylov='cg'):
+        assert pc in ['icc', 'ilu', 'jacobi', 'sur', 'ml', 'lsc','asm']
+        # icc: incomplete Cholesky factorisation
+        # ilu: incomplete LU factorisation
+        # jacobi: Jacobi method
+        # sur: Successive over-relaxation
+        # ml: algebraic multigrid
+        # lsc: least square communicators Schur complements
+        # asm: additive Schwarz method
+        assert krylov in ['preonly', 'gmres', 'minres', 'cg']
+        # preonly: only preconditioner
+        # gmres: general generalised minimal residual method
+        # minres: minimal residual method
+        # cg: conjugate gradient method
 
         A = sparse.csr_matrix(self.matrix_a)
         mat = PETSc.Mat().createAIJ(size=A.shape,
