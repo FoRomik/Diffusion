@@ -31,13 +31,11 @@ class Solve(object):
         return x
 
     def parallel(self, pc='icc', krylov='cg'):
-        assert pc in ['icc', 'ilu', 'jacobi', 'sur', 'ml', 'lsc','asm']
+        assert pc in ['icc', 'ilu', 'jacobi', 'sor','asm']
         # icc: incomplete Cholesky factorisation
         # ilu: incomplete LU factorisation
         # jacobi: Jacobi method
-        # sur: Successive over-relaxation
-        # ml: algebraic multigrid
-        # lsc: least square communicators Schur complements
+        # sor: Successive over-relaxation
         # asm: additive Schwarz method
         assert krylov in ['preonly', 'gmres', 'minres', 'cg']
         # preonly: only preconditioner
@@ -69,6 +67,7 @@ class Solve(object):
         ksp.setOperators(mat)
         ksp.setFromOptions()
         ksp.solve(b, x)
+        print(ksp.getIterationNumber())
 
         return x[...]
 

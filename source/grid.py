@@ -61,6 +61,7 @@ class Grid(object):
         return np.array(connectivity_matrix)
 
     def export(self, vertices_matrix, connectivity_matrix):
+        connectivity_matrix = np.array(connectivity_matrix)
         filename = os.path.basename(self.name)
         number_of_vertices = len(vertices_matrix)
         number_of_triangles = len(connectivity_matrix)

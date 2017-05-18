@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+import time
 import numpy as np
 import scipy.sparse as sp
 import scipy.sparse.linalg as linalg
@@ -12,6 +13,7 @@ from source.fem import Fem
 from source.plot import Plot
 
 def Schwarz(vtk_filename, eps):
+    t = time.time()
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
 
@@ -68,8 +70,10 @@ def Schwarz(vtk_filename, eps):
             error = np.linalg.norm(residual)
             print(error)
         comm.send(False, dest=1, tag=4)
-
         x = fem.modify_solution(x)
+        elapsed = time.time()-t
+        print(elapsed)
+
         plot = Plot(x)
         plot.FEM(vertices_matrix, connectivity_matrix)
 
