@@ -7,7 +7,6 @@ from source.plot import Plot
 
 def test(vtk_file_name, subtype):
     assert subtype in ["direct", "gmres", "minres", "cg"]
-    t = time.time()
     # Create grid
     grid = Grid(vtk_file_name)
     vertices_matrix = grid.get_vertices_matrix()
@@ -19,6 +18,7 @@ def test(vtk_file_name, subtype):
     A = fem.get_matrix_a()
     b = fem.get_vector_b()
 
+    t = time.time()
     # Solve
     solver = Solve(A, b)
     if subtype=="direct":
@@ -36,7 +36,6 @@ def test(vtk_file_name, subtype):
 
 
 def parallelTest(vtk_file_name, pc, krylov):
-    t = time.time()
     # Create grid
     grid = Grid(vtk_file_name)
     vertices_matrix = grid.get_vertices_matrix()
@@ -47,7 +46,7 @@ def parallelTest(vtk_file_name, pc, krylov):
     fem.solve(lambda x, y: 1, lambda x, y: 1)
     A = fem.get_matrix_a()
     b = fem.get_vector_b()
-
+    t = time.time()
     # Solve
     solver = Solve(A, b)
     x = solver.parallel(pc, krylov)
