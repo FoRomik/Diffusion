@@ -9,11 +9,10 @@ from mpi4py import MPI
 from source.grid import Grid
 from source.partition import Partition
 from source.fem import Fem
-#from source.solve import Solve (we're implementing solver!)
+from source.solve import Solve
 from source.plot import Plot
 
 def Schwarz(vtk_filename, eps):
-    t = time.time()
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
 
@@ -60,6 +59,8 @@ def Schwarz(vtk_filename, eps):
         # invert matrix
         inv0 = linalg.inv(A0)
         error = np.linalg.norm(b-A.dot(x))
+        t = time.time()
+        iterations = 0
         while error > eps:
             comm.send(True, dest=1, tag=4)
             comm.send(x, dest=1, tag=5)
@@ -68,10 +69,11 @@ def Schwarz(vtk_filename, eps):
             x = x + delta0 + delta1
             residual = b-A.dot(x)
             error = np.linalg.norm(residual)
-            print(error)
+            iterations = iterations + 1
         comm.send(False, dest=1, tag=4)
         x = fem.modify_solution(x)
         elapsed = time.time()-t
+        print(iterations)
         print(elapsed)
 
         plot = Plot(x)
